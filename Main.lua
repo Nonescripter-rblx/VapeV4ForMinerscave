@@ -7,6 +7,10 @@ local vape = loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDa
 vape.Place = 'Minecrap'
 loadfile('newvape/games/Universal.lua')()
 
+local function notif(...)
+    return vape:CreateNotification(...)
+end
+
 local NoFall = vape.Categories.Blatant:CreateModule({
     Name = 'NoFall',
     Function = function(callback)
@@ -18,14 +22,13 @@ local NoFall = vape.Categories.Blatant:CreateModule({
 })
 
 local Dupe = vape.Categories.Inventory:CreateModule({
-    Name = 'Dupe',
+    Name = 'Dupe (WIP)',
     Function = function(callback)
         if callback then
-            print("yea it got enabled and method is " .. DupeModeVal)
-            Dupe:Toggle()
+            notif('Dupe', 'Duped item using ' .. DupeModeVal .. ' method.')
         end
     end,
-    Tooltip = 'Dupe items with chest.'
+    Tooltip = 'Dupe items with.'
 })
 
 DupeMode = Dupe:CreateDropdown({
