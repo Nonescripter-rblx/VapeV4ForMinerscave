@@ -3,4 +3,8 @@
 
 
 ## How to load?
-its ***Simple***
+its **Simple**. just grab your executor and execute following script:
+lua
+```
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Nonescripter-rblx/VapeV4ForMinerscave/refs/heads/main/Main.lua",true))()
+```
