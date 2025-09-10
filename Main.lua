@@ -1,11 +1,7 @@
--- why there's whole fucking error with entitylib
-
 shared.VapeIndependent = true
 local vape = loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/main/NewMainScript.lua', true))()
 local Remotes = game:GetService("ReplicatedStorage"):FindFirstChild("GameRemotes")
-loadfile('newvape/games/Universal.lua')()
-local TargetInfo = vape.Libraries.TargetInfo -- hooray!
-local SessionInfo = vape.Libraries.SessionInfo
+local univ = loadfile('newvape/games/Universal.lua')()
 local lol = function(code)
     code()
 end
@@ -15,7 +11,7 @@ vape.Place = 'Minecrap'
 
 vape:CreateNotification('From Nonescripter', 'I\'m sorry, i was lazy to add much module.', 20) -- :P
 
--- Remove Some Broken Modules
+--[[ Remove Some Broken Modules
 vape:Remove('SilentAim')
 vape:Remove('AutoClicker')
 vape:Remove('TriggerBot')
@@ -30,7 +26,7 @@ vape:Remove('Disabler')
 vape:Remove('StaffDetector')
 vape:Remove('PlayerModel')
 vape:Remove('Killaura')
--- End
+-- End]]
 
 
 -- NoFall module
@@ -247,12 +243,5 @@ end)
     That's it! :D
 
 ]]
-
-lol(function()
-    local CoordGUI = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("HUDGui").DataFrame.Coord.Text
-    
-    
-    local Coords = SessionInfo:AddItem('Coordinates', '0, 0, 0', function() return string.sub(CoordGUI, 13, -1) end, false)
-end)
 
 vape:Init()
