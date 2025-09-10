@@ -1,366 +1,211 @@
-local gameremotes = game.ReplicatedStorage.GameRemotes
-local Demo = gameremotes:FindFirstChild("Demo") or game.Workspace:FindFirstChild("Demo")
-local DupeModeVal = 'Selected'
-local strafeRange
-local run = function(func)
-    func()
-end
-local Players = game:GetService("Players")
-local player = game:GetService("Players").LocalPlayer
-local slot = player.PlayerGui.HUDGui.Inventory.Slots:FindFirstChild("Slot-1")
-local moveitems = gameremotes:FindFirstChild("MoveItem") or gameremotes:FindFirstChild("MoveItems")
-local fluidFolder = Workspace:FindFirstChild("Fluid")
-
+-- why there's whole fucking error with entitylib
 
 shared.VapeIndependent = true
 local vape = loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/main/NewMainScript.lua', true))()
-vape.Place = 'Minecrap'
+local Remotes = game:GetService("ReplicatedStorage"):FindFirstChild("GameRemotes")
 loadfile('newvape/games/Universal.lua')()
-local entitylib = shared.vape.Libraries.EntityLibrary
-
-local function notif(...)
-    return vape:CreateNotification(...)
+local lol = function(code)
+    code()
 end
+vape.Place = 'Minecrap'
 
-notif('From Nonescripter', 'I\'m sorry, i was lazy to add much module.', 20)
 
-local NoFall = vape.Categories.Blatant:CreateModule({
-    Name = 'NoFall',
-    Function = function(callback)
-        if callback then
-            if Demo.Parent == gameremotes then Demo.Parent = game.Workspace
-            else Demo.Parent = game.Workspace end
-        else 
-            if Demo.Parent == gameremotes then Demo.Parent = game.Workspace
-            else Demo.Parent = game.Workspace end
-        end
-    end,
-    ExtraText = function() return 'NoRemote' end,
-    Tooltip = 'Removes fall damage.'
-})
 
-local Dupe = vape.Categories.Inventory:CreateModule({
-    Name = 'Dupe (Broken BTW)',
-    Function = function(callback)
-        if callback then
-            if DupeModeVal == 'Selected' then
-                local b = slot.SlotNA.Count
-                local bCount = tonumber(b.Text)
-                if not bCount then
-                    return
-                end
-                     
-                if bCount == 64 then
-                    return
-                end
-    
-                local howmuch = 64 - bCount
-                local usetables = false
-                
-                local success, err = pcall(function()
-                    if usetables then
-                        moveitems:InvokeServer({[1] = -1, [2] = 82, [3] = true, [4] = -howmuch})
-                    else
-                        moveitems:InvokeServer(-1, 82, true, -howmuch)
-                    end
-                end)
-                notif('Dupe', 'Duped item using ' .. DupeModeVal .. ' method.', 3)
+vape:CreateNotification('From Nonescripter', 'I\'m sorry, i was lazy to add much module.', 20) -- :P
+
+-- Remove Some Broken Modules
+vape:Remove('SilentAim')
+vape:Remove('AutoClicker')
+vape:Remove('TriggerBot')
+vape:Remove('MurderMystery')
+vape:Remove('Reach')
+vape:Remove('Invisible')
+vape:Remove('Swim')
+vape:Remove('AntiFall')
+vape:Remove('AutoRejoin')
+vape:Remove('AntiRagdoll')
+vape:Remove('Disabler')
+vape:Remove('StaffDetector')
+vape:Remove('PlayerModel')
+vape:Remove('Killaura')
+-- End
+
+
+-- NoFall module
+lol(function()
+    local FDH = game:GetService("ReplicatedStorage"):FindFirstChild("GameRemotes"):FindFirstChild("Demo") or game:GetService("Workspace"):FindFirstChild("Demo")
+
+    local NoFall = vape.Categories.Blatant:CreateModule({
+        Name = 'NoFall',
+        Function = function(callback)
+            if callback then -- enabled
+                if FDH.Parent == Remotes then FDH.Parent = game:GetService("Workspace") end
+            else -- disabled
+                if FDH.Parent == game:GetService("Workspace") then FDH.Parent = Remotes end
             end
-        end
-    end,
-    ExtraText = function() return DupeModeVal end,
-    Tooltip = 'Dupe items.'
-})
+        end,
+        ExtraText = function() return 'Minecraft' end,
+        Tooltip = 'Removes fall damage.'
+    })
+end)
 
-DupeMode = Dupe:CreateDropdown({
-    Name = 'Method',
-    List = {'Selected', ':)'},
-    Function = function(val)
-        DupeModeVal = val
-        if val == 'Selected' then notif('Dupe', 'Open chest, Select item and enable dupe', 6) end
-    end,
-    Tooltip = 'Method of duping.'
-})
 
-local FastBreak = vape.Categories.World:CreateModule({
-    Name = 'FastBreak',
-    Function = function(callback)
-        while callback do
-            gameremotes.AcceptBreakBlock:InvokeServer()
-            task.wait()
-        end
-    end,
-    ExtraText = function() return 'RemoteSpam' end,
-    Tooltip = 'Break blocks fast if you have right tool.'
-})
+-- Dupe Module
+lol(function()
+    local Count = 64
+    local Method = 'Chest'
+    local Selected = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("HUDGui").Inventory.Slots:FindFirstChild("Slot-1")
+    local Move = Remotes:FindFirstChild("MoveItem") or Remotes:FindFirstChild("MoveItems")
 
-run(function()
-	local Killaura
-	local Targets
-	local CPS
-	local SwingRange
-	local AttackRange
-	local AngleSlider
-	local Max
-	local Mouse
-	local Lunge
-	local BoxSwingColor
-	local BoxAttackColor
-	local ParticleTexture
-	local ParticleColor1
-	local ParticleColor2
-	local ParticleSize
-	local Face
-	local Overlay = OverlapParams.new()
-	Overlay.FilterType = Enum.RaycastFilterType.Include
-	local Particles, Boxes, AttackDelay = {}, {}, tick()
-	
-	Killaura = vape.Categories.Blatant:CreateModule({
-		Name = 'Killaura',
-		Function = function(callback)
-			if callback then
-				repeat
-					local attacked = {}
-					
-					local plrs = entitylib.AllPosition({
-						Range = SwingRange.Value,
-						Wallcheck = Targets.Walls.Enabled or nil,
-						Part = 'RootPart',
-						Players = Targets.Players.Enabled,
-						NPCs = Targets.NPCs.Enabled,
-						Limit = Max.Value
-					})
+    local Dupe = vape.Categories.Inventory:CreateModule({
+        Name = 'Dupe (Broken btw)',
+        Function = function(callback)
+            if callback then -- enabled
+                if Method == 'Chest' then
+                    local Target = Selected.SlotNA.Count
+                    local CurrentCount = tonumber(Target.Text)
 
-					if #plrs > 0 then
-						local selfpos = entitylib.character.RootPart.Position
-						local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
+                    if not CurrentCount or CurrentCount <= Count then -- Not selected or full
+                        return
+                    end
+                    
+                    local done, err = pcall(function()
+                        Move:InvokeServer({
+                            [1] = -1,
+                            [2] = 82,
+                            [3] = true,
+                            [4] = -(CurrentCount - Count)
+                        })
+                    end)
+                    vape:CreateNotification('Dupe', 'Duped item using ' .. DupeModeVal .. ' method.', 3)
+                    Dupe:Toggle()
+                end
+            end
+        end,
+        ExtraText = function() return Method end,
+        Tooltip = 'Dupe items.'
+    })
 
-						for _, v in plrs do
-							local delta = (v.RootPart.Position - selfpos)
-							local angle = math.acos(localfacing:Dot((delta * Vector3.new(1, 0, 1)).Unit))
-							if angle > (math.rad(AngleSlider.Value) / 2) then continue end
+    DupeMethod = Dupe:CreateDropdown({
+        Name = 'Method',
+        List = {'Chest'},
+        Function = function(val)
+            Method = val
+            if val == 'Chest' then notif('Dupe', 'Open chest, Select item and enable dupe', 6) end
+        end,
+        Tooltip = 'Method of duping.'
+    })
 
-							table.insert(attacked, {
-								Entity = v,
-								Check = delta.Magnitude > AttackRange.Value and BoxSwingColor or BoxAttackColor
-							})
-							targetinfo.Targets[v] = tick() + 1
+    CountSlider = Dupe:CreateSlider({
+        Name = 'Dupe Count',
+        Min = 1,
+        Max = 64,
+        Function = function(val)
+            Count = val
+        end,
+        Tooltip = 'Amount of dupe'
+    })
+    
+    CountSlider:SetValue(64)
+end)
 
-							if AttackDelay < tick() then
-								AttackDelay = tick() + (1 / CPS.GetRandomValue())
-							end
 
-							if Lunge.Enabled then break end
-							if delta.Magnitude > AttackRange.Value then continue end
+-- FastBreak
+lol(function()
+    local FastBreak = vape.Categories.World:CreateModule({
+        Name = 'FastBreak',
+        Function = function(callback)
+            while callback do -- enabled
+                game:GetService('ReplicatedStorage'):FindFirstChild('GameRemotes').AcceptBreakBlock:InvokeServer()
+                task.wait()
+            end
+        end,
+        ExtraText = function() return 'Minecraft' end,
+        Tooltip = 'Break blocks fast if you have right tool.'
+    })
+end)
 
-							-- 여기에서 공격 코드를 변경합니다
-							game.ReplicatedStorage.GameRemotes.Attack:InvokeServer(v.Character)
-						end
+
+-- KillAura
+lol(function()
+    local Attack = game:GetService('ReplicatedStorage'):FindFirstChild('GameRemotes').Attack
+    local LocalPlayer = game:GetService('Players').LocalPlayer
+    local Players = game:GetService('Players')
+	local SearchDistance = 16
+    local status = 'Waiting'
+    local Target
+    local Method = 'Health'
+    local KillAura
+
+    local function GetHealthTarget()
+        local Lowest = math.huge
+        local CurrentTarget = nil
+        local LocalRoot = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart')
+
+        if not LocalRoot then return nil end
+
+        for _, Search in ipairs(Players:GetPlayers()) do
+            if Search ~= LocalPlayer and Search.Character then -- if target isn't localplayer and target is alive
+                local SearchRoot = Search:FindFirstChild("HumanoidRootPart")
+                local SearchHumanoid = Search.Character:FindFirstChild("Humanoid")
+                
+                if SearchHumanoid and SearchRoot and SearchHumanoid.Health > 0 then
+                    local Distance = (SearchRoot.Position - LocalRoot.Position).Magnitude
+
+					if Distance <= SearchDistance and SearchHumanoid.Health < Lowest then
+						Lowest = SearchHumanoid.Health
+						CurrentTarget = Search
 					end
-
-					for i, v in Boxes do
-						v.Adornee = attacked[i] and attacked[i].Entity.RootPart or nil
-						if v.Adornee then
-							v.Color3 = Color3.fromHSV(attacked[i].Check.Hue, attacked[i].Check.Sat, attacked[i].Check.Value)
-							v.Transparency = 1 - attacked[i].Check.Opacity
-						end
-					end
-
-					for i, v in Particles do
-						v.Position = attacked[i] and attacked[i].Entity.RootPart.Position or Vector3.new(9e9, 9e9, 9e9)
-						v.Parent = attacked[i] and gameCamera or nil
-					end
-
-					if Face.Enabled and attacked[1] then
-						local vec = attacked[1].Entity.RootPart.Position * Vector3.new(1, 0, 1)
-						entitylib.character.RootPart.CFrame = CFrame.lookAt(entitylib.character.RootPart.Position, Vector3.new(vec.X, entitylib.character.RootPart.Position.Y + 0.01, vec.Z))
-					end
-
-					task.wait()
-				until not Killaura.Enabled
-			else
-				for _, v in Boxes do
-					v.Adornee = nil
-				end
-				for _, v in Particles do
-					v.Parent = nil
 				end
 			end
+		end
+        warn(CurrentTarget.Character.Humanoid.Name)
+		return CurrentTarget
+	end
+
+    KillAura = vape.Categories.Blatant:CreateModule({
+        Name = 'KillAura',
+        Function = function(callback)
+            while KillAura.Enabled do
+                if Method == 'Health' then Target = GetHealthTarget()
+                elseif Method == 'Distance' then Target = GetHealthTarget() end
+
+                if Target and Target.Character then
+                    local Root = Target.Character:FindFirstChild('HumanoidRootPart')
+                    if Root and LocalPlayer:DistanceFromCharacter(Root.Position) <= SearchDistance then
+                        Attack:InvokeServer(Target.Character)
+                        status = 'Attacking'
+                    end
+                else status = 'Waiting' end
+                task.wait(0.3)
+            end
+        end,
+        ExtraText = function() return status end,
+        Tooltip = 'Attack Enemy Without hitting them.'
+    })
+
+	RangeSlider = KillAura:CreateSlider({
+		Name = 'Range',
+		Min = 0,
+		Max = 16,
+		Function = function(val)
+			SearchDistance = val
 		end,
-		Tooltip = 'Attack players around you\nwithout aiming at them.'
-	})
-	Targets = Killaura:CreateTargets({Players = true})
-	CPS = Killaura:CreateTwoSlider({
-		Name = 'Attacks per Second',
-		Min = 1,
-		Max = 30,
-		Default = 13,
 		Suffix = function(val)
 			return val == 1 and 'stud' or 'studs'
-		end
-	})
-	AngleSlider = Killaura:CreateSlider({
-		Name = 'Max angle',
-		Min = 1,
-		Max = 360,
-		Default = 90
-	})
-	Max = Killaura:CreateSlider({
-		Name = 'Max targets',
-		Min = 1,
-		Max = 10,
-		Default = 10
-	})
-	Mouse = Killaura:CreateToggle({Name = 'Require mouse down'})
-	Lunge = Killaura:CreateToggle({Name = 'Sword lunge only'})
-	Killaura:CreateToggle({
-		Name = 'Show target',
-		Function = function(callback)
-			BoxSwingColor.Object.Visible = callback
-			BoxAttackColor.Object.Visible = callback
-			if callback then
-				for i = 1, 10 do
-					local box = Instance.new('BoxHandleAdornment')
-					box.Adornee = nil
-					box.AlwaysOnTop = true
-					box.Size = Vector3.new(3, 5, 3)
-					box.CFrame = CFrame.new(0, -0.5, 0)
-					box.ZIndex = 0
-					box.Parent = vape.gui
-					Boxes[i] = box
-				end
-			else
-				for _, v in Boxes do
-					v:Destroy()
-				end
-				table.clear(Boxes)
-			end
-		end
-	})
-	BoxSwingColor = Killaura:CreateColorSlider({
-		Name = 'Target Color',
-		Darker = true,
-		DefaultHue = 0.6,
-		DefaultOpacity = 0.5,
-		Visible = false
-	})
-	BoxAttackColor = Killaura:CreateColorSlider({
-		Name = 'Attack Color',
-		Darker = true,
-		DefaultOpacity = 0.5,
-		Visible = false
-	})
-	Killaura:CreateToggle({
-		Name = 'Target particles',
-		Function = function(callback)
-			ParticleTexture.Object.Visible = callback
-			ParticleColor1.Object.Visible = callback
-			ParticleColor2.Object.Visible = callback
-			ParticleSize.Object.Visible = callback
-			if callback then
-				for i = 1, 10 do
-					local part = Instance.new('Part')
-					part.Size = Vector3.new(2, 4, 2)
-					part.Anchored = true
-					part.CanCollide = false
-					part.Transparency = 1
-					part.CanQuery = false
-					part.Parent = Killaura.Enabled and gameCamera or nil
-					local particles = Instance.new('ParticleEmitter')
-					particles.Brightness = 1.5
-					particles.Size = NumberSequence.new(ParticleSize.Value)
-					particles.Shape = Enum.ParticleEmitterShape.Sphere
-					particles.Texture = ParticleTexture.Value
-					particles.Transparency = NumberSequence.new(0)
-					particles.Lifetime = NumberRange.new(0.4)
-					particles.Speed = NumberRange.new(16)
-					particles.Rate = 128
-					particles.Drag = 16
-					particles.ShapePartial = 1
-				 ColorSequence.new({
-									ColorSequenceKeypoint.new(0, Color3.fromHSV(ParticleColor1.Hue, ParticleColor1.Sat, ParticleColor1.Value)),
-				 		ColorSequenceKeypoint.new(1, Color3.fromHSV(ParticleColor2.Hue, ParticleColor2.Sat, ParticleColor2.Value))
-					})
-					part.CanQuery = false
-					part.Parent = Killaura.Enabled and gameCamera or nil
-					local particles = Instance.new('ParticleEmitter')
-					particles.Brightness = 1.5
-					particles.Size = NumberSequence.new(ParticleSize.Value)
-					particles.Shape = Enum.ParticleEmitterShape.Sphere
-					particles.Texture = ParticleTexture.Value
-					particles.Transparency = NumberSequence.new(0)
-					particles.Lifetime = NumberRange.new(0.4)
-					particles.Speed = NumberRange.new(16)
-					particles.Rate = 128
-					particles.Drag = 16
-					particles.ShapePartial = 1
-					particles.Color = ColorSequence.new({
-						ColorSequenceKeypoint.new(0, Color3.fromHSV(ParticleColor1.Hue, ParticleColor1.Sat, ParticleColor1.Value)),
-						ColorSequenceKeypoint.new(1, Color3.fromHSV(ParticleColor2.Hue, ParticleColor2.Sat, ParticleColor2.Value))
-					})
-					particles.Parent = part
-					Particles[i] = part
-				end
-			else
-				for _, v in Particles do
-					v:Destroy()
-				end
-				table.clear(Particles)
-			end
-		end
-	})
-	ParticleTexture = Killaura:CreateTextBox({
-		Name = 'Texture',
-		Default = 'rbxassetid://14736249347',
-		Function = function()
-			for _, v in Particles do
-				v.ParticleEmitter.Texture = ParticleTexture.Value
-			end
 		end,
-		Darker = true,
-		Visible = false
+		Tooltip = 'Range to Attack'
 	})
-	ParticleColor1 = Killaura:CreateColorSlider({
-		Name = 'Color Begin',
-		Function = function(hue, sat, val)
-			for _, v in Particles do
-				v.ParticleEmitter.Color = ColorSequence.new({
-					ColorSequenceKeypoint.new(0, Color3.fromHSV(hue, sat, val)),
-					ColorSequenceKeypoint.new(1, Color3.fromHSV(ParticleColor2.Hue, ParticleColor2.Sat, ParticleColor2.Value))
-				})
-			end
-		end,
-		Darker = true,
-		Visible = false
-	})
-	ParticleColor2 = Killaura:CreateColorSlider({
-		Name = 'Color End',
-		Function = function(hue, sat, val)
-			for _, v in Particles do
-				v.ParticleEmitter.Color = ColorSequence.new({
-					ColorSequenceKeypoint.new(0, Color3.fromHSV(ParticleColor1.Hue, ParticleColor1.Sat, ParticleColor1.Value)),
-					ColorSequenceKeypoint.new(1, Color3.fromHSV(hue, sat, val))
-				})
-			end
-		end,
-		Darker = true,
-		Visible = false
-	})
-	ParticleSize = Killaura:CreateSlider({
-		Name = 'Size',
-		Min = 0,
-		Max = 1,
-		Default = 0.2,
-		Decimal = 100,
-		Function = function(val)
-			for _, v in Particles do
-				v.ParticleEmitter.Size = NumberSequence.new(val)
-			end
-		end,
-		Darker = true,
-		Visible = false
-	})
-	Face = Killaura:CreateToggle({Name = 'Face target'})
-end) 
 
+	RangeSlider:SetValue(16)
+
+	dropdown = KillAura:CreateDropdown({
+		Name = 'Target',
+		List = {'Health', 'Distance'},
+		Function = function(val)
+			Method = val
+		end,
+		Tooltip = 'Target to Attack'
+	})
+end)
 vape:Init()
