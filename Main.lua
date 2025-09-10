@@ -4,6 +4,8 @@ shared.VapeIndependent = true
 local vape = loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/main/NewMainScript.lua', true))()
 local Remotes = game:GetService("ReplicatedStorage"):FindFirstChild("GameRemotes")
 loadfile('newvape/games/Universal.lua')()
+local TargetInfo = vape.Libraries.TargetInfo -- hooray!
+local SessionInfo = vape.Libraries.SessionInfo
 local lol = function(code)
     code()
 end
@@ -140,6 +142,7 @@ lol(function()
     local function GetHealthTarget()
         local Lowest = math.huge
         local CurrentTarget = nil
+        local status = 'Waiting'
         local LocalRoot = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild('HumanoidRootPart')
 
         if not LocalRoot then return nil end
@@ -200,12 +203,14 @@ lol(function()
                     local Root = Target.Character:FindFirstChild('HumanoidRootPart')
                     if Root and LocalPlayer:DistanceFromCharacter(Root.Position) <= SearchDistance then
                         Attack:InvokeServer(Target.Character)
-                    end
-                end
+                        status = 'Attacking'
+                    else status = 'Waiting' end
+                else status = 'Waiting' end
+                vape:UpdateTextGUI()
                 task.wait(0.3)
             end
         end,
-        ExtraText = function() return Method end,
+        ExtraText = function() return status end,
         Tooltip = 'Attack Enemy Without hitting them.'
     })
 
@@ -232,6 +237,22 @@ lol(function()
         end,
         Tooltip = 'Target to Attack'
     })
+end)
+
+--[[
+
+    TODO:
+
+    Add Some Support
+    That's it! :D
+
+]]
+
+lol(function()
+    local CoordGUI = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("HUDGui").DataFrame.Coord.Text
+    
+    
+    local Coords = SessionInfo:AddItem('Coordinates', '0, 0, 0', function() return string.sub(CoordGUI, 13, -1) end, false)
 end)
 
 vape:Init()
