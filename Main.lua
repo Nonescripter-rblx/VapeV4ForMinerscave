@@ -244,6 +244,6 @@ end)
 
 ]]
 
-vape:CreateNotification('Vape', 'Loaded!, 3)
+vape:CreateNotification('Vape', 'Loaded!', 3)
 
 vape:Init()
