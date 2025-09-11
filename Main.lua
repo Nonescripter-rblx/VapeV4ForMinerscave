@@ -9,9 +9,9 @@ vape.Place = 'Minecrap'
 
 
 
-vape:CreateNotification('From Nonescripter', 'I\'m sorry, i was lazy to add much module.', 20) -- :P
+vape:CreateNotification('From Nonescripter', 'I\'m sorry, i was lazy to add much module.', 15) -- :P
 
---[[ Remove Some Broken Modules
+-- Remove Some Broken Modules
 vape:Remove('SilentAim')
 vape:Remove('AutoClicker')
 vape:Remove('TriggerBot')
@@ -26,7 +26,7 @@ vape:Remove('Disabler')
 vape:Remove('StaffDetector')
 vape:Remove('PlayerModel')
 vape:Remove('Killaura')
--- End]]
+-- End                         ]]
 
 
 -- NoFall module
@@ -243,5 +243,7 @@ end)
     That's it! :D
 
 ]]
+
+vape:CreateNotification('Vape', 'Loaded!, 3)
 
 vape:Init()
